@@ -1,0 +1,22 @@
+# Python
+bridge/venv/
+__pycache__/
+*.pyc
+
+# Node
+dashboard/node_modules/
+
+# C++
+engine/build/
+
+# Environment
+.env
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
