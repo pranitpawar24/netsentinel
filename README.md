@@ -14,7 +14,44 @@
 ---
 
 ## 🏗️ Architecture
-
+┌─────────────────────────────────────────────────────────────┐
+│                     C++ DPI Engine                          │
+│                                                             │
+│   libpcap          Protocol Dissector      Inspection       │
+│  (capture)   →     L2 → Ethernet          Modules          │
+│                    L3 → IPv4                               │
+│  Live mode:        L4 → TCP / UDP    ├─ Threat Detector    │
+│  network iface     L7 → HTTP / DNS   ├─ Traffic Classifier │
+│                        / TLS SNI     ├─ Content Filter     │
+│  Demo mode:                          └─ Behavioral         │
+│  .pcap replay      Policy Engine        Profiler ★         │
+│                    + Rule Manager    (z-score anomaly)      │
+│                         │                                   │
+│                    JSON Logger                              │
+└─────────────────────────┬───────────────────────────────────┘
+│  HTTP POST /ingest/packet
+▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Python FastAPI Bridge                       │
+│                                                             │
+│   POST /ingest/packet    →  ingest engine events            │
+│   POST /ingest/anomaly   →  ingest anomaly alerts           │
+│   POST /scenario/{name}  →  trigger attack scenario         │
+│   GET  /api/stats        →  dashboard stats                 │
+│   GET  /api/alerts       →  alert history                   │
+│   WS   /ws               →  real-time WebSocket stream      │
+└─────────────────────────┬───────────────────────────────────┘
+│  WebSocket + REST
+▼
+┌─────────────────────────────────────────────────────────────┐
+│           React Dashboard  (Live on Vercel)                 │
+│                                                             │
+│   Scenario Selector  →  trigger attacks with one click      │
+│   Live Packet Feed   →  real-time packet stream             │
+│   Traffic Chart      →  packets + threats over time         │
+│   Protocol Donut     →  HTTP / DNS / TLS / UNKNOWN          │
+│   Alerts Panel       →  threat + anomaly feed               │
+└─────────────────────────────────────────────────────────────┘
 ---
 
 ## ✨ Features
@@ -62,6 +99,39 @@ Score > 3.5 → alert generated with full deviation breakdown.
 
 ## 📁 Project Structure
 ---
+netsentinel/
+├── engine/                     # C++ DPI core
+│   ├── src/
+│   │   ├── main.cpp            # Entry point, CLI args, packet loop
+│   │   ├── capture.cpp         # libpcap live capture + pcap demo replay
+│   │   ├── dissector.cpp       # L2–L7 protocol parser
+│   │   └── profiler.cpp        # Behavioral profiler + z-score anomaly detection
+│   ├── include/
+│   │   ├── types.h             # Packet, IPHeader, AppLayer, InspectionResult
+│   │   ├── capture.h
+│   │   ├── dissector.h
+│   │   └── profiler.h
+│   ├── rules/
+│   │   └── threat_signatures.json   # SQLi, XSS, C2 beacon signatures
+│   └── CMakeLists.txt
+├── bridge/                     # Python FastAPI bridge
+│   ├── main.py                 # REST + WebSocket + scenario runner
+│   └── requirements.txt
+├── dashboard/                  # React frontend
+│   ├── src/
+│   │   ├── App.jsx             # Main dashboard with scenario selector
+│   │   └── main.jsx
+│   ├── index.html
+│   └── package.json
+├── demo/                       # Attack scenario pcap files
+│   ├── normal_traffic.pcap
+│   ├── port_scan.pcap
+│   ├── sql_injection.pcap
+│   ├── exfiltration.pcap
+│   └── generate_pcaps.py       # Scapy script to regenerate pcaps
+└── .github/
+└── workflows/
+└── build.yml           # CI: builds C++ engine, tests bridge, builds dashboard
 
 ## 🚀 Quick Start
 
