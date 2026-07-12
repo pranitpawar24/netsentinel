@@ -199,3 +199,84 @@ Open 3 terminals — bridge, engine, dashboard — then visit `http://localhost:
 ## 📄 License
 
 MIT © [Pranit Pawar](https://github.com/pranitpawar24)
+
+---
+
+## 🖥️ How to Use NetSentinel
+
+### Option 1 — Just view the live demo (no setup needed)
+Visit **[netsentinel-zeta.vercel.app](https://netsentinel-zeta.vercel.app)** and click any scenario button to see the engine analyzing pre-captured attack traffic in real time.
+
+> **Note:** The live demo shows traffic from our engine running on our server — not your own network traffic. To monitor your own traffic, follow Option 2 or 3 below.
+
+---
+
+### Option 2 — Monitor your own machine's traffic (local setup)
+
+Clone and run the engine on your own machine to analyze your real network traffic.
+
+**Requirements:** Linux or WSL2, `libpcap`, `cmake`, `python3`, `node`
+
+```bash
+# 1. Clone
+git clone https://github.com/pranitpawar24/netsentinel.git
+cd netsentinel
+
+# 2. Build engine
+cd engine && mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release && make -j$(nproc)
+
+# 3. Start bridge (new terminal)
+cd ../../bridge
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8000
+
+# 4. Start dashboard (new terminal)
+cd ../dashboard
+npm install && npm run dev
+
+# 5. Run engine on your network interface (new terminal)
+ip a                          # find your interface name (eth0, wlan0, etc.)
+sudo ./engine/build/netsentinel --iface eth0 --bridge http://localhost:8000
+
+# 6. Open dashboard
+# http://localhost:5173
+```
+
+Now the dashboard shows **your own real network traffic** being analyzed live.
+
+---
+
+### Option 3 — Run attack scenarios without live capture (demo mode)
+
+No root access needed — replays pre-captured attack pcap files:
+
+```bash
+# Normal traffic
+./engine/build/netsentinel --demo demo/normal_traffic.pcap --bridge http://localhost:8000
+
+# Port scan attack
+./engine/build/netsentinel --demo demo/port_scan.pcap --bridge http://localhost:8000
+
+# SQL injection
+./engine/build/netsentinel --demo demo/sql_injection.pcap --bridge http://localhost:8000
+
+# Data exfiltration
+./engine/build/netsentinel --demo demo/exfiltration.pcap --bridge http://localhost:8000
+```
+
+Or use the scenario buttons on the dashboard — they trigger these automatically.
+
+---
+
+### Option 4 — Deploy on your own network (advanced)
+
+To monitor all traffic on a network (not just one machine):
+
+1. Deploy the engine + bridge on a Linux machine connected to your network
+2. Run engine in live capture mode: `sudo ./netsentinel --iface eth0`
+3. Deploy the dashboard on Vercel or any static host
+4. Set `VITE_API_URL` to your bridge's public IP
+5. Every device on the network is now monitored
+
+> This is how enterprise IDS tools like Snort and Suricata are deployed.
