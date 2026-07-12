@@ -1,0 +1,11 @@
+{
+  "remoteName": "origin",
+  "projects": [
+    {
+      "id": "prj_N2NNr4FdamnQwJbVwQPh0Tr7Jm0a",
+      "name": "netsentinel",
+      "directory": "dashboard",
+      "orgId": "team_HW0aLtjmaNobV0PHWoSBJ6fm"
+    }
+  ]
+}
