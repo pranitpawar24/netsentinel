@@ -280,3 +280,37 @@ To monitor all traffic on a network (not just one machine):
 5. Every device on the network is now monitored
 
 > This is how enterprise IDS tools like Snort and Suricata are deployed.
+
+---
+
+## 🎯 Seeing Threats in Action
+
+No technical setup needed. Just visit the live dashboard and click any scenario button:
+
+| Button | What happens | What you see |
+|---|---|---|
+| **Normal Traffic** | Replays HTTP, DNS, TLS browsing traffic | Clean traffic, no alerts, protocol distribution |
+| **Port Scan** | Replays Nmap-style SYN scan on 30 ports | PORT_SCAN alert fires, 30+ packets to same IP |
+| **SQL Injection** | Replays SQLi + XSS payloads over HTTP | DROP/ALERT verdicts, injection reason shown |
+| **Data Exfiltration** | Replays large upload to foreign IP on port 4444 | Anomaly score rises, POSSIBLE_EXFILTRATION alert |
+
+### What the dashboard shows for each threat
+
+**Port Scan:**
+Alert: PORT_SCAN · 10.0.0.99 → 192.168.1.10
+Reason: SYN to 30 unique ports
+Verdict: ALERT
+**SQL Injection:**
+Alert: DROP · 10.0.0.55 → victim.com
+Reason: SQL Injection attempt detected in POST /login
+Payload: ' OR '1'='1
+Verdict: DROP
+
+**Data Exfiltration:**
+Alert: POSSIBLE_EXFILTRATION · 192.168.1.42
+Anomaly score: 4.7
+Deviation: 820% above baseline upload volume
+Active at unusual hour
+
+> These are real pcap files captured from actual attack patterns,
+> replayed through the C++ engine and detected in real time.
