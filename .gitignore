@@ -1,23 +1,15 @@
+# Build outputs
+dashboard/dist/
+dashboard/node_modules/
+engine/build/
+
 # Python
 bridge/venv/
+bridge/__pycache__/
+bridge/netsentinel.db
 __pycache__/
 *.pyc
 
-# Node
-dashboard/node_modules/
-
-# C++
-engine/build/
-
-# Environment
-.env
-
-# Logs
-*.log
-
-# VS Code
-.vscode/
-
-# macOS
+# OS
 .DS_Store
-.vercel
+Thumbs.db
